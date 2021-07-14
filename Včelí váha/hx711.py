@@ -388,10 +388,55 @@ class HX711:
         self.power_down()
         self.power_up()
 
+
+class HX711Update(HX711):
+    def __init__(self, dout: int, pd_sck: int, reference_unit: int):
+        """
+        Tahle třída slouží jako nástavba na třídu HX711. Třída při zapnutí také spustí funkce reset() a tare()
+        :param dout: pin DOUT
+        :param pd_sck: pin PD_SCK
+        :param reference_unit: reference unit váhy
+        """
+        super().__init__(dout, pd_sck)
+        self.set_reading_format("MSB", "MSB")
+        self.set_reference_unit(reference_unit)
+
+        self.reset()
+        self.tare()
+
+    def cycle(self):
+        """
+        Spustí cyklus power_down() a power_up()
+        """
+        self.power_down()
+        self.power_up()
+
+    @property
+    def reference(self):
+        """
+        :return: reference unit
+        """
+        return self.REFERENCE_UNIT
+
+    @reference.setter
+    def reference(self, a: int):
+        """
+        Nastaví reference point
+        :param a: integer, reference point váhy
+        :return:
+        """
+        self.REFERENCE_UNIT = a
+
+    @property
+    def weight(self) -> float:
+        """
+        :return: váha s přepočty kalibrace
+        """
+        return self.get_weight(5)
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         GPIO.cleanup()
 
-# EOF - hx711.py
